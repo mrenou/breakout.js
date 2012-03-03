@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Breakout</title>
+</head>
+<body>
+<script src="src/Coordinates.js"></script>
+<script src="src/ForceVector.js"></script>
+<script src="src/BallCollisions.js"></script>
+<script src="src/BallCollisionMotor.js"></script>
+<script src="src/Ball.js"></script>
+<script src="src/Brick.js"></script>
+<script src="src/Wall.js"></script>
+<script src="src/Bar.js"></script>
+<script src="src/GameArea.js"></script>
+<script src="src/Breakout.js"></script>
+
+<script>
+    window.addEventListener('load', function () {
+        // On récupère l'objet canvas
+        var elem = document.getElementById('canvasElem');
+        if (!elem || !elem.getContext) {
+            return;
+        }
+        new Breakout(elem);
+    }, false);
+</script>
+
+<canvas id="canvasElem" width="400" height="300">
+    Texte si le navigateur ne supporte pas le HTML Canvas
+</canvas>
+
+</body>
+</html>

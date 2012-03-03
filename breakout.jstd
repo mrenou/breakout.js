@@ -1,0 +1,4 @@
+load:
+  - lib/*.js
+  - src/*.js
+  - test/*.js
