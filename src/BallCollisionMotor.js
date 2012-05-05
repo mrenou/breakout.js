@@ -2,7 +2,6 @@ function BallCollisionMotor(gameArea) {
     this.gameArea = gameArea;
 }
 
-
 BallCollisionMotor.prototype.getCollisions = function () {
     var collisions = new BallCollisions();
 
@@ -11,7 +10,6 @@ BallCollisionMotor.prototype.getCollisions = function () {
     addCollisionsWithBricks(collisions, this.gameArea.ball, this.gameArea.wall.bricks);
 
     return collisions;
-
 
     function addCollisionsWithGameArea(collisions, ball, gameArea) {
         if (ball.coordinates.x >= gameArea.width - Ball.RADIUS) {
@@ -35,86 +33,74 @@ BallCollisionMotor.prototype.getCollisions = function () {
     }
 
     function addCollisionsWithBricks(collisions, ball, bricks) {
+        var nearestBricks = getNearestBricksFromBall(ball, bricks);
 
-        var ballIndexY = Math.floor(ball.coordinates.y / (Brick.HEIGHT + Wall.SPACE_BETWEEN_BRICKS));
-        var ballIndexX = Math.floor(ball.coordinates.x / (Brick.WIDTH + Wall.SPACE_BETWEEN_BRICKS));
-
-        var topBrick = getBrick(ballIndexY - 1, ballIndexX, bricks);
-        if (topBrick != undefined && topBrick.broken == false) {
-            if (ball.getTopBoundCoordinateY() <= topBrick.getBottomBoundCoordinateY()) {
-                topBrick.broken = true;
-                collisions.hitTopCollision();
-            }
-        }
-
-        var rightBrick = getBrick(ballIndexY, ballIndexX + 1, bricks);
-        if (rightBrick != undefined && rightBrick.broken == false) {
-            if (ball.getRightBoundCoordinateX() >= rightBrick.getLeftBoundCoordinateX()) {
-                rightBrick.broken = true;
-                collisions.hitRightCollision();
-            }
-        }
-
-        var bottomBrick = getBrick(ballIndexY + 1, ballIndexX, bricks);
-        if (bottomBrick != undefined && bottomBrick.broken == false) {
-            if (ball.getBottomBoundCoordinateY() >= bottomBrick.getTopBoundCoordinateY()) {
-                bottomBrick.broken = true;
-                collisions.hitBottomCollision();
-            }
-        }
-
-        var leftBrick = getBrick(ballIndexY, ballIndexX - 1, bricks);
-        if (leftBrick != undefined && leftBrick.broken == false) {
-            if (ball.getLeftBoundCoordinateX() <= leftBrick.getRightBoundCoordinateX()) {
-                leftBrick.broken = true;
-                collisions.hitLeftCollision();
-            }
-        }
-
-        var rightBottomBrick = getBrick(ballIndexY + 1, ballIndexX + 1, bricks);
-        if (rightBottomBrick != undefined && rightBottomBrick.broken == false) {
-            if (ball.getRightBoundCoordinateX() <= rightBottomBrick.getLeftBoundCoordinateX()
-                && ball.getBottomBoundCoordinateY() >= rightBottomBrick.getTopBoundCoordinateY()) {
-                rightBottomBrick.broken = true;
-                collisions.hitRightCollision();
-                collisions.hitBottomCollision();
-            }
-        }
-
-        var leftBottomBrick = getBrick(ballIndexY + 1, ballIndexX - 1, bricks);
-        if (leftBottomBrick != undefined && leftBottomBrick.broken == false) {
-            if (ball.getLeftBoundCoordinateX() >= leftBottomBrick.getRightBoundCoordinateX()
-                && ball.getBottomBoundCoordinateY() >= leftBottomBrick.getTopBoundCoordinateY()) {
-                leftBottomBrick.broken = true;
-                collisions.hitLeftCollision();
-                collisions.hitBottomCollision();
-            }
-        }
-
-        var rightTopBrick = getBrick(ballIndexY - 1, ballIndexX + 1, bricks);
-        if (rightTopBrick != undefined && rightTopBrick.broken == false) {
-            if (ball.getRightBoundCoordinateX() >= rightTopBrick.getLeftBoundCoordinateX()
-                && ball.getTopBoundCoordinateY() <= rightTopBrick.getBottomBoundCoordinateY()) {
-                rightTopBrick.broken = true;
-                collisions.hitRightCollision();
-                collisions.hitTopCollision();
-            }
-        }
-
-        var leftTopBrick = getBrick(ballIndexY - 1, ballIndexX - 1, bricks);
-        if (leftTopBrick != undefined && leftTopBrick.broken == false) {
-            if (ball.getLeftBoundCoordinateX() <= leftTopBrick.getRightBoundCoordinateX()
-                && ball.getTopBoundCoordinateY() <= leftTopBrick.getBottomBoundCoordinateY()) {
-                leftTopBrick.broken = true;
-                collisions.hitLeftCollision();
-                collisions.hitTopCollision();
+        for(var i=0; i < nearestBricks.length; i++) {
+            if (nearestBricks[i] != undefined) {
+                addCollisionsBetweenBallAndBrick(collisions, ball, nearestBricks[i]);
             }
         }
     }
 
-    function getBrick(ballIndexY, ballIndexX, bricks) {
-        if (bricks[ballIndexY] != undefined) {
-            return bricks[ballIndexY][ballIndexX];
+    function getNearestBricksFromBall(ball, bricks) {
+        var nearestBricks = new Array();
+        var ballIndexY = Math.floor(ball.coordinates.y / (Brick.HEIGHT + Wall.SPACE_BETWEEN_BRICKS));
+        var ballIndexX = Math.floor(ball.coordinates.x / (Brick.WIDTH + Wall.SPACE_BETWEEN_BRICKS));
+
+        pushBrickIfExists(ballIndexY - 1, ballIndexX, bricks, nearestBricks);
+        pushBrickIfExists(ballIndexY, ballIndexX + 1, bricks, nearestBricks);
+        pushBrickIfExists(ballIndexY + 1, ballIndexX, bricks, nearestBricks);
+        pushBrickIfExists(ballIndexY, ballIndexX - 1, bricks, nearestBricks);
+        pushBrickIfExists(ballIndexY + 1, ballIndexX + 1, bricks, nearestBricks);
+        pushBrickIfExists(ballIndexY + 1, ballIndexX - 1, bricks, nearestBricks);
+        pushBrickIfExists(ballIndexY - 1, ballIndexX + 1, bricks, nearestBricks);
+        pushBrickIfExists(ballIndexY - 1, ballIndexX - 1, bricks, nearestBricks);
+        return nearestBricks;
+    }
+
+    function pushBrickIfExists(ballIndexY, ballIndexX, bricks, nearestBricks) {
+        if (bricks[ballIndexY] != undefined && bricks[ballIndexY][ballIndexX] != undefined && !bricks[ballIndexY][ballIndexX].broken) {
+            nearestBricks.push(bricks[ballIndexY][ballIndexX]);
         }
+    }
+
+    function addCollisionsBetweenBallAndBrick(collisions, ball, brick) {
+        var nearestBrickPoint = getNearestBrickPoint(ball, brick);
+        var nearestBrickPointFromBallCenter = useBallCenterAsLandmark(ball, nearestBrickPoint);
+
+        if (isContainedInBall(nearestBrickPointFromBallCenter)) {
+            if (nearestBrickPointFromBallCenter.x > 0) {
+                brick.broken = true;
+                collisions.hitLeftCollision();
+            }
+            if (nearestBrickPointFromBallCenter.x < 0) {
+                brick.broken = true;
+                collisions.hitRightCollision();
+            }
+            if (nearestBrickPointFromBallCenter.y > 0) {
+                brick.broken = true;
+                collisions.hitTopCollision();
+            }
+            if (nearestBrickPointFromBallCenter.y < 0) {
+                brick.broken = true;
+                collisions.hitBottomCollision();
+            }
+        }
+    }
+
+    function getNearestBrickPoint(ball, brick) {
+        var nearestBrickPointX = Math.min(ball.coordinates.x, brick.getRightBoundCoordinateX());
+        nearestBrickPointX = Math.max(nearestBrickPointX, brick.getLeftBoundCoordinateX());
+        var nearestBrickPointY = Math.min(ball.coordinates.y, brick.getBottomBoundCoordinateY());
+        nearestBrickPointY = Math.max(nearestBrickPointY, brick.getTopBoundCoordinateY());
+        return new Coordinates(nearestBrickPointX, nearestBrickPointY);
+    }
+
+    function useBallCenterAsLandmark(ball, nearestBrickPoint) {
+        return new Coordinates(ball.coordinates.x - nearestBrickPoint.x, ball.coordinates.y - nearestBrickPoint.y);
+    }
+
+    function isContainedInBall(nearestBrickPointFromBallCenter) {
+        return Math.abs(nearestBrickPointFromBallCenter.x) <= Ball.RADIUS && Math.abs(nearestBrickPointFromBallCenter.y) <= Ball.RADIUS;
     }
 }
