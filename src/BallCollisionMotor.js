@@ -36,25 +36,23 @@ BallCollisionMotor.prototype.getCollisions = function () {
         var nearestBricks = getNearestBricksFromBall(ball, bricks);
 
         for(var i=0; i < nearestBricks.length; i++) {
-            if (nearestBricks[i] != undefined) {
-                addCollisionsBetweenBallAndBrick(collisions, ball, nearestBricks[i]);
-            }
+            addCollisionsWithBrick(collisions, ball, nearestBricks[i]);
         }
     }
 
     function getNearestBricksFromBall(ball, bricks) {
         var nearestBricks = new Array();
-        var ballIndexY = Math.floor(ball.coordinates.y / (Brick.HEIGHT + Wall.SPACE_BETWEEN_BRICKS));
-        var ballIndexX = Math.floor(ball.coordinates.x / (Brick.WIDTH + Wall.SPACE_BETWEEN_BRICKS));
+        var ballAtBrickIndexY = Math.floor(ball.coordinates.y / (Brick.HEIGHT + Wall.SPACE_BETWEEN_BRICKS));
+        var ballAtBrickIndexX = Math.floor(ball.coordinates.x / (Brick.WIDTH + Wall.SPACE_BETWEEN_BRICKS));
 
-        pushBrickIfExists(ballIndexY - 1, ballIndexX, bricks, nearestBricks);
-        pushBrickIfExists(ballIndexY, ballIndexX + 1, bricks, nearestBricks);
-        pushBrickIfExists(ballIndexY + 1, ballIndexX, bricks, nearestBricks);
-        pushBrickIfExists(ballIndexY, ballIndexX - 1, bricks, nearestBricks);
-        pushBrickIfExists(ballIndexY + 1, ballIndexX + 1, bricks, nearestBricks);
-        pushBrickIfExists(ballIndexY + 1, ballIndexX - 1, bricks, nearestBricks);
-        pushBrickIfExists(ballIndexY - 1, ballIndexX + 1, bricks, nearestBricks);
-        pushBrickIfExists(ballIndexY - 1, ballIndexX - 1, bricks, nearestBricks);
+        pushBrickIfExists(ballAtBrickIndexY - 1, ballAtBrickIndexX, bricks, nearestBricks);
+        pushBrickIfExists(ballAtBrickIndexY, ballAtBrickIndexX + 1, bricks, nearestBricks);
+        pushBrickIfExists(ballAtBrickIndexY + 1, ballAtBrickIndexX, bricks, nearestBricks);
+        pushBrickIfExists(ballAtBrickIndexY, ballAtBrickIndexX - 1, bricks, nearestBricks);
+        pushBrickIfExists(ballAtBrickIndexY + 1, ballAtBrickIndexX + 1, bricks, nearestBricks);
+        pushBrickIfExists(ballAtBrickIndexY + 1, ballAtBrickIndexX - 1, bricks, nearestBricks);
+        pushBrickIfExists(ballAtBrickIndexY - 1, ballAtBrickIndexX + 1, bricks, nearestBricks);
+        pushBrickIfExists(ballAtBrickIndexY - 1, ballAtBrickIndexX - 1, bricks, nearestBricks);
         return nearestBricks;
     }
 
@@ -64,7 +62,7 @@ BallCollisionMotor.prototype.getCollisions = function () {
         }
     }
 
-    function addCollisionsBetweenBallAndBrick(collisions, ball, brick) {
+    function addCollisionsWithBrick(collisions, ball, brick) {
         var nearestBrickPoint = getNearestBrickPoint(ball, brick);
         var nearestBrickPointFromBallCenter = useBallCenterAsLandmark(ball, nearestBrickPoint);
 
