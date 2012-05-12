@@ -1,4 +1,10 @@
+server: http://localhost:9000
+
 load:
   - lib/*.js
+  - test/lib/*.js
+  - test/utils/*.js
   - src/*.js
+
+test:
   - test/*.js
